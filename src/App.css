@@ -9,9 +9,35 @@
 	border: none;
 }
 
+.action-bar {
+	position: relative;
+	top: 100px;
+	outline:2px solid #000;
+	margin:auto;
+	height:84px;
+	width:1012px;
+	padding: 0;
+	border: none;
+}
+
 .cell {
 	background: #fff;
 	border: 1px solid #999;
+	float: left;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 34px;
+	height: 100px;
+	margin-right: -1px;
+	margin-top: -1px;
+	padding: 0;
+	text-align: center;
+	width: 100px;
+}
+
+.playing-cell {
+	background: #d46262;
+	border: 1px solid #6a23ad;
 	float: left;
 	font-size: 24px;
 	font-weight: bold;

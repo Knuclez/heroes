@@ -1,94 +1,63 @@
-use serde::ser::{Serialize,Serializer, SerializeStruct};
+use serde::ser::{Serialize, SerializeStruct};
 
-struct GameManager{
-    board: Board,
-}
-
-pub struct Board{
-    pieces: [Row; 6],
-}
-
-pub struct Row{
-    line: [PlayablePiece; 12],
+pub struct GameManager{
+    board: [[PlayablePiece; 12]; 6],
+    turn_owner: [u16; 2],
 }
 
 
 pub struct PlayablePiece{
-    name: String
+    name: String,
+    position: [u16; 2],
 
 }
 
-impl Board{
-    pub fn mock_board() -> Board{
-        Board{pieces: [Row::row_mockup(),
-                        Row::row_mockup(),
-                        Row::row_mockup(),
-                        Row::row_mockup(),
-                        Row::row_mockup(),
-                        Row::row_mockup()]}
+impl GameManager {
+    pub fn mock_gamemanager() -> GameManager{
+        GameManager{
+            board: GameManager::setup_board(),
+            turn_owner: [0,1]
+        }
     }
 
-    pub fn print_first_piece(&self) {
-        self.pieces[0].get_line()[0].print_name();
+    fn setup_board() -> [[PlayablePiece; 12]; 6]{
+        let row1 = [PlayablePiece::pawn_mockup([0,0]),PlayablePiece::pawn_mockup([0,1]), PlayablePiece::pawn_mockup([0,2]), PlayablePiece::pawn_mockup([0,3]), PlayablePiece::pawn_mockup([0,4]), PlayablePiece::pawn_mockup([0,5]), PlayablePiece::pawn_mockup([0,6]), PlayablePiece::pawn_mockup([0,7]), PlayablePiece::pawn_mockup([0,8]), PlayablePiece::pawn_mockup([0,9]), PlayablePiece::pawn_mockup([0,10]), PlayablePiece::pawn_mockup([0,11])];
+        let row2 = [PlayablePiece::pawn_mockup([1,0]),PlayablePiece::pawn_mockup([1,1]), PlayablePiece::pawn_mockup([1,2]), PlayablePiece::pawn_mockup([1,3]), PlayablePiece::pawn_mockup([1,4]), PlayablePiece::pawn_mockup([1,5]), PlayablePiece::pawn_mockup([1,6]), PlayablePiece::pawn_mockup([1,7]), PlayablePiece::pawn_mockup([1,8]), PlayablePiece::pawn_mockup([1,9]), PlayablePiece::pawn_mockup([1,10]), PlayablePiece::pawn_mockup([1,11])];
+        let row3 = [PlayablePiece::pawn_mockup([2,0]),PlayablePiece::pawn_mockup([2,1]), PlayablePiece::pawn_mockup([2,2]), PlayablePiece::pawn_mockup([2,3]), PlayablePiece::pawn_mockup([2,4]), PlayablePiece::pawn_mockup([2,5]), PlayablePiece::pawn_mockup([2,6]), PlayablePiece::pawn_mockup([2,7]), PlayablePiece::pawn_mockup([2,8]), PlayablePiece::pawn_mockup([2,9]), PlayablePiece::pawn_mockup([2,10]), PlayablePiece::pawn_mockup([2,11])];
+        let row4 = [PlayablePiece::pawn_mockup([3,0]),PlayablePiece::pawn_mockup([3,1]), PlayablePiece::pawn_mockup([3,2]), PlayablePiece::pawn_mockup([3,3]), PlayablePiece::pawn_mockup([3,4]), PlayablePiece::pawn_mockup([3,5]), PlayablePiece::pawn_mockup([3,6]), PlayablePiece::pawn_mockup([3,7]), PlayablePiece::pawn_mockup([3,8]), PlayablePiece::pawn_mockup([3,9]), PlayablePiece::pawn_mockup([3,10]), PlayablePiece::pawn_mockup([3,11])];
+        let row5 = [PlayablePiece::pawn_mockup([4,0]),PlayablePiece::pawn_mockup([4,1]), PlayablePiece::pawn_mockup([4,2]), PlayablePiece::pawn_mockup([4,3]), PlayablePiece::pawn_mockup([4,4]), PlayablePiece::pawn_mockup([4,5]), PlayablePiece::pawn_mockup([4,6]), PlayablePiece::pawn_mockup([4,7]), PlayablePiece::pawn_mockup([4,8]), PlayablePiece::pawn_mockup([4,9]), PlayablePiece::pawn_mockup([4,10]), PlayablePiece::pawn_mockup([4,11])];
+        let row6 = [PlayablePiece::pawn_mockup([5,0]),PlayablePiece::pawn_mockup([5,1]), PlayablePiece::pawn_mockup([5,2]), PlayablePiece::pawn_mockup([5,3]), PlayablePiece::pawn_mockup([5,4]), PlayablePiece::pawn_mockup([5,5]), PlayablePiece::pawn_mockup([5,6]), PlayablePiece::pawn_mockup([5,7]), PlayablePiece::pawn_mockup([5,8]), PlayablePiece::pawn_mockup([5,9]), PlayablePiece::pawn_mockup([5,10]), PlayablePiece::pawn_mockup([5,11])];
+                return [row1, row2, row3, row4, row5, row6];
     }
 }
 
-impl Row{
-    pub fn row_mockup() -> Row {
-        Row { line: [PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(), 
-            PlayablePiece::pawn_mockup(), 
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup(),
-            PlayablePiece::pawn_mockup()] }
-    }
-
-    pub fn get_line(&self) -> &[PlayablePiece; 12]{
-        return &self.line;
-    }
-}
 impl PlayablePiece {
-    pub fn pawn_mockup() -> PlayablePiece{
-        PlayablePiece { name: format!("Pawn") }
+    pub fn pawn_mockup(pos: [u16;2]) -> PlayablePiece{
+        PlayablePiece { name: format!("Pawn"), position:pos }
     }
 
-    pub fn knight_mockup() -> PlayablePiece{
-        PlayablePiece { name: format!("Kinght") }
+    pub fn _knight_mockup(pos: [u16;2]) -> PlayablePiece{
+        PlayablePiece { name: format!("Kinght"), position:pos  }
     }
 
-    pub fn blank_mockup() -> PlayablePiece{
-        PlayablePiece { name: format!("Blank") }
+    pub fn _blank_mockup(pos: [u16;2]) -> PlayablePiece{
+        PlayablePiece { name: format!("Blank"), position:pos  }
     }
 
-    pub fn print_name(&self) {
+    pub fn _print_name(&self) {
         println!("This piece name is {}", self.name.clone())
     }
 }
 
 
-impl Serialize for Board {
+impl Serialize for GameManager {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer {
-        let mut state = serializer.serialize_struct("Board", 1)?;
-        state.serialize_field("pieces", &self.pieces);
-        state.end()
-    }
-}
-
-impl Serialize for Row {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer {
-        let mut state = serializer.serialize_struct("Row", 1)?;
-        state.serialize_field("line", &self.line);
-        state.end()
+            let mut state = serializer.serialize_struct("GameManager", 2)?;
+            state.serialize_field("board", &self.board)?;
+            state.serialize_field("turn_owner", &self.turn_owner)?;
+            state.end()
     }
 }
 
@@ -96,8 +65,9 @@ impl Serialize for PlayablePiece {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer {
-        let mut state = serializer.serialize_struct("PlayablePiece", 1)?;
-        state.serialize_field("name", &self.name);
+        let mut state = serializer.serialize_struct("PlayablePiece", 2)?;
+        state.serialize_field("name", &self.name)?;
+        state.serialize_field("position", &self.position)?;
         state.end()
     }
 }

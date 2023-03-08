@@ -1,11 +1,13 @@
 use serde::ser::{Serialize, SerializeStruct};
+use std::collections::VecDeque;
 
+#[derive(Clone)]
 pub struct GameManager{
     board: [[PlayablePiece; 12]; 6],
     turn_owner: [u16; 2],
 }
 
-
+#[derive(Clone)]
 pub struct PlayablePiece{
     name: String,
     position: [u16; 2],
@@ -13,6 +15,7 @@ pub struct PlayablePiece{
 }
 
 impl GameManager {
+
     pub fn mock_gamemanager() -> GameManager{
         GameManager{
             board: GameManager::setup_board(),
@@ -28,6 +31,10 @@ impl GameManager {
         let row5 = [PlayablePiece::pawn_mockup([4,0]),PlayablePiece::pawn_mockup([4,1]), PlayablePiece::pawn_mockup([4,2]), PlayablePiece::pawn_mockup([4,3]), PlayablePiece::pawn_mockup([4,4]), PlayablePiece::pawn_mockup([4,5]), PlayablePiece::pawn_mockup([4,6]), PlayablePiece::pawn_mockup([4,7]), PlayablePiece::pawn_mockup([4,8]), PlayablePiece::pawn_mockup([4,9]), PlayablePiece::pawn_mockup([4,10]), PlayablePiece::pawn_mockup([4,11])];
         let row6 = [PlayablePiece::pawn_mockup([5,0]),PlayablePiece::pawn_mockup([5,1]), PlayablePiece::pawn_mockup([5,2]), PlayablePiece::pawn_mockup([5,3]), PlayablePiece::pawn_mockup([5,4]), PlayablePiece::pawn_mockup([5,5]), PlayablePiece::pawn_mockup([5,6]), PlayablePiece::pawn_mockup([5,7]), PlayablePiece::pawn_mockup([5,8]), PlayablePiece::pawn_mockup([5,9]), PlayablePiece::pawn_mockup([5,10]), PlayablePiece::pawn_mockup([5,11])];
                 return [row1, row2, row3, row4, row5, row6];
+    }
+
+    pub fn get_board(&self) -> &[[PlayablePiece; 12]; 6] {
+        return & self.board;
     }
 }
 

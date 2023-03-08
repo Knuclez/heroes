@@ -105,9 +105,8 @@ function Grid(){
   const [turnOwner, setTurnOwner] = useState([10,10]);
 
   useEffect(() => {
-    Promise.resolve(invoke("start_game"))
-    .then((value) => {setTurnOwner(value.turn_owner);
-                      setBoard(value.board);});
+    Promise.resolve(invoke("get_board"))
+    .then((value) => {setBoard(value);});
 
   }, [])
   return (

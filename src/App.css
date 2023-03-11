@@ -60,3 +60,8 @@
 	content: "";
 	display: table;
   }
+
+.turn-button{
+	width: 100px;
+	height: 100px;
+}

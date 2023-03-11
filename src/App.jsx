@@ -1,11 +1,21 @@
 import { invoke } from "@tauri-apps/api";
 import { JSXElementConstructor, ReactElement, ReactFragment, ReactPortal, useContext, useEffect, useState } from "react";
 import "./App.css";
+import {AbilityManager} from './js classes/gameplay.js';
 
 function App() {
+  const [turn, setTurn] = useState(0);
+
+  function passTurn() {
+    setTurn(turn + 1);
+    invoke("pass_turn");
+  }
+
   return (
     <div className="container">
-      <Grid/>
+      <button onClick={() => passTurn()} className="turn-button">{turn}</button>
+
+      <Grid turn={turn}/>
       <ActionBar/>
     </div>
   );
@@ -21,7 +31,7 @@ function ActionBar(){
   )
 }
 
-function Grid(){
+function Grid(props){
   var pieces = [[{name: "Tower", position:[0,0]},
                 {name: "Pawn", position:[0,1]},
                 {name: "", position:[0,2]},
@@ -101,14 +111,20 @@ function Grid(){
                 {name: "Tower", position:[5,11]},
               ]
             ];
+  const ability_manager = new AbilityManager();
   const [board, setBoard] = useState(pieces);
   const [turnOwner, setTurnOwner] = useState([10,10]);
 
   useEffect(() => {
     Promise.resolve(invoke("get_board"))
     .then((value) => {setBoard(value);});
+    Promise.resolve(invoke("get_turn_owner"))
+    .then((value) => {setTurnOwner(value);});
 
-  }, [])
+    console.log(ability_manager.get_ability(1))
+  }, [props.turn])
+
+
   return (
     <div className="grid">
         {board.map( row => (

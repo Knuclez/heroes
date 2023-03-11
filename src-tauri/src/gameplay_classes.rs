@@ -1,15 +1,16 @@
 use serde::ser::{Serialize, SerializeStruct};
+use std::clone;
 use std::collections::VecDeque;
+use std::sync::Mutex;
 
-#[derive(Clone)]
 pub struct GameManager{
     board: [[PlayablePiece; 12]; 6],
-    turn_owner: [u16; 2],
+    turn_queue: Mutex<VecDeque<[u16; 2]>>
 }
 
 #[derive(Clone)]
 pub struct PlayablePiece{
-    name: String,
+    name: &'static str,
     position: [u16; 2],
 
 }
@@ -19,7 +20,7 @@ impl GameManager {
     pub fn mock_gamemanager() -> GameManager{
         GameManager{
             board: GameManager::setup_board(),
-            turn_owner: [0,1]
+            turn_queue: GameManager::setup_turn_queue(),
         }
     }
 
@@ -33,22 +34,43 @@ impl GameManager {
                 return [row1, row2, row3, row4, row5, row6];
     }
 
+    fn setup_turn_queue() -> Mutex<VecDeque<[u16; 2]>> {
+        let arr:[[u16; 2]; 6] = [[1,0],[0,1],[0,2],[0,3],[4,0],[5,0]];
+        Mutex::new(VecDeque::from(arr))
+    }
+
     pub fn get_board(&self) -> &[[PlayablePiece; 12]; 6] {
         return & self.board;
+    }
+
+    pub fn get_turn_owner(&self) -> [u16; 2]{
+        let mut guard = self.turn_queue.lock().unwrap();
+        let vec = &mut *guard;
+        let value = vec.front().unwrap().clone();
+        return value;
+    }
+
+    pub fn pass_turn(&self){
+        let mut guard = self.turn_queue.lock().unwrap();
+        let vec = &mut *guard;
+
+        let front = vec.pop_front().unwrap();
+        vec.push_back(front);
+        println!("passing turn");
     }
 }
 
 impl PlayablePiece {
     pub fn pawn_mockup(pos: [u16;2]) -> PlayablePiece{
-        PlayablePiece { name: format!("Pawn"), position:pos }
+        PlayablePiece { name: "Pawn", position:pos }
     }
 
     pub fn _knight_mockup(pos: [u16;2]) -> PlayablePiece{
-        PlayablePiece { name: format!("Kinght"), position:pos  }
+        PlayablePiece { name: "Kinght", position:pos  }
     }
 
     pub fn _blank_mockup(pos: [u16;2]) -> PlayablePiece{
-        PlayablePiece { name: format!("Blank"), position:pos  }
+        PlayablePiece { name: "Blank", position:pos  }
     }
 
     pub fn _print_name(&self) {
@@ -63,7 +85,7 @@ impl Serialize for GameManager {
             S: serde::Serializer {
             let mut state = serializer.serialize_struct("GameManager", 2)?;
             state.serialize_field("board", &self.board)?;
-            state.serialize_field("turn_owner", &self.turn_owner)?;
+            state.serialize_field("turn_queue", &self.turn_queue)?;
             state.end()
     }
 }
@@ -78,3 +100,4 @@ impl Serialize for PlayablePiece {
         state.end()
     }
 }
+

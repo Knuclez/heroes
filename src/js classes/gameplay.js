@@ -1,7 +1,7 @@
 export class AbilityManager{
     abilites = {
-        0: new Ability("Water Dance", "heal", 10, 5, 1, 1, "Little heal (10hp)"),
-        1: new Ability("Quick Stab", "damage", 25, 1, 1, 1, "Quick damage (25hp)"),
+        0: new Ability("Water Dance", "heal", 10, 4, "Little heal (10hp)"),
+        1: new Ability("Quick Stab", "damage", 25, 1, "Quick damage (25hp)"),
 
     }
 
@@ -13,16 +13,22 @@ export class AbilityManager{
     get_ability(id) {
         return this.abilites[id];
     }
+
+    get_affected_cells(id, turnOwner){
+        let ability = this.abilites[id];
+        let x = turnOwner[0];
+        let y = turnOwner[1];
+        let res = [[x-ability.range, y], [x+ability.range, y]];
+        return res;
+    }
 }
 
 class Ability{
-    constructor(name, effect, amount, range, vertical_area, horizontal_area, description){
+    constructor(name, effect, amount, range, description){
         this.name = name;
         this.range = range;
         this.effect = effect;
         this.amount = amount;
-        this.vertical_area = vertical_area;
-        this.horizontal_area = horizontal_area;
         this.description = description;
     }
 

@@ -4,34 +4,6 @@ import "./App.css";
 import {AbilityManager} from './js classes/gameplay.js';
 
 function App() {
-  const [turn, setTurn] = useState(0);
-
-  function passTurn() {
-    setTurn(turn + 1);
-    invoke("pass_turn");
-  }
-
-  return (
-    <div className="container">
-      <button onClick={() => passTurn()} className="turn-button">{turn}</button>
-
-      <Grid turn={turn}/>
-      <ActionBar/>
-    </div>
-  );
-}
-export default App;
-
-
-function ActionBar(){
-  return (
-    <div className="action-bar">
-
-    </div>
-  )
-}
-
-function Grid(props){
   var pieces = [[{name: "Tower", position:[0,0]},
                 {name: "Pawn", position:[0,1]},
                 {name: "", position:[0,2]},
@@ -111,29 +83,80 @@ function Grid(props){
                 {name: "Tower", position:[5,11]},
               ]
             ];
-  const ability_manager = new AbilityManager();
+  
+  const [turn, setTurn] = useState(0);
   const [board, setBoard] = useState(pieces);
   const [turnOwner, setTurnOwner] = useState([10,10]);
+  const [ability, setAbility] = useState(null);
 
-  useEffect(() => {
+  function passTurn() {
+    setTurn(turn + 1);
+    invoke("pass_turn");
+
     Promise.resolve(invoke("get_board"))
     .then((value) => {setBoard(value);});
     Promise.resolve(invoke("get_turn_owner"))
     .then((value) => {setTurnOwner(value);});
 
-    console.log(ability_manager.get_ability(1))
-  }, [props.turn])
+    console.log(turnOwner);
+  }
 
+  return (
+    <div className="container">
+      <button onClick={() => passTurn()} className="turn-button">{turn}</button>
+      
+      <Grid turnOwner={turnOwner} board={board} ability={ability}/>
+      <ActionBar setAbility={setAbility}/>
+    </div>
+  );
+}
+export default App;
+
+
+function ActionBar(props){
+  const ability_manager = new AbilityManager();
+
+  function abilitysetting(id){
+    let ability = ability_manager.get_ability(id);
+    props.setAbility(ability);
+  }
+
+  return (
+    <div className="action-bar">
+      <button onClick={() => abilitysetting(0)}>habilidad 1</button>
+      <button onClick={() => abilitysetting(1)}>habilidad 2</button>
+      <button onClick={() => props.setAbility(null)}>Cancel ability</button>
+    </div>
+  )
+}
+
+function Grid(props){
+
+  function isOnRange(piece_position){
+    if(props.ability != null){
+      let x_diff =  Math.abs(piece_position[0] - props.turnOwner[0])
+      let y_diff = Math.abs(piece_position[1] - props.turnOwner[1])
+      let is_on_range = (x_diff + y_diff <= props.ability.range)
+
+      return is_on_range;
+    } else {
+      return false;
+    }
+  }
 
   return (
     <div className="grid">
-        {board.map( row => (
+        {props.board.map( row => (
         row.map( piece =>{
-        if(turnOwner[0] != piece.position[0] | turnOwner[1] != piece.position[1]){
-          return (<Cell name={piece.name}/>)
+        if(props.turnOwner[0] == piece.position[0] & props.turnOwner[1] == piece.position[1]){
+          return (<PlayingCell name={piece.name}/>)
+          
+        }
+        else if(isOnRange(piece.position)){
+          return (<ReachableCell name={piece.name} ability={props.ability}/>)
         }
         else{
-          return (<PlayingCell name={piece.name}/>)
+          return (<Cell name={piece.name} ability={props.ability}/>)
         }
         })))}
     </div>
@@ -141,8 +164,15 @@ function Grid(props){
 };
 
 function Cell(props){
+  function reactToClick(){
+    if (props.ability != null){
+      alert("Unreachable cell");
+    } else {
+      console.log("rea")
+    }
+  }
   return(
-    <div className="cell">
+    <div className="cell" onClick={() => reactToClick()}>
       <>
         {props.name}
       </>
@@ -161,3 +191,12 @@ function PlayingCell(props){
 
 }
 
+function ReachableCell(props){
+  return(
+    <div className="affected-cell">
+      <>
+        {props.name}
+      </>
+    </div>
+  )
+};
